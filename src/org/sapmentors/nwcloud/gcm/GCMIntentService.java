@@ -2,6 +2,8 @@ package org.sapmentors.nwcloud.gcm;
 
 import java.io.IOException;
 
+import org.sapmentors.nwcloud.gcm.backend.NWCloudBackend;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -102,6 +104,17 @@ public class GCMIntentService extends GCMBaseIntentService {
 		notificationManager.notify(1, notification);
 	}
 
+	
+	/**
+	 * Called when the device has been unregistered.
+	 * 
+	 * @param context
+	 *            the Context
+	 */
+	@Override
+	protected void onUnregistered(Context context, String registrationId) {
+	}
+	
 	/**
 	 * Called when a registration token has been received.
 	 * 
@@ -113,89 +126,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.i(LOG_PREFIX, "onRegistered");
 		// TODO
 		// Persist registration key in nwcloud backend
-
-		persistDevice("dagfinn.parnas@gmail.com", registrationKey);
+		NWCloudBackend.persistDevice("dagfinn.parnas@gmail.com", registrationKey);
 	}
 
 	
-	private void persistDevice(String email, String registrationKey) {
-		HttpRequestFactory requestFactory =
-		        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
-		            @Override
-		          public void initialize(HttpRequest request) {
-		            request.setParser(new JsonObjectParser(JSON_FACTORY));
-		          }
-		        });
-		NWCloudBackendURL url = new NWCloudBackendURL("http://192.168.1.6:8080/nwcloud-androidgcm-backend/api/androiddevice/");
-		
-		GenericData data = new GenericData();
-		data.put("email", email);
-		data.put("registrationKey", registrationKey);
-		
-		JsonHttpContent jsonContent = new JsonHttpContent(JSON_FACTORY, data);
-	    
-		HttpRequest request;
-		try {
-			request = requestFactory.buildPostRequest(url, jsonContent);
-			parseResponse(request.execute());
-		} catch (IOException e) {
-			Log.e(LOG_PREFIX, "Failed to post JSON ", e);
-		}
-	    
-	}
 
-
-	private void parseResponse(HttpResponse response) throws IOException{
-		// TODO Auto-generated method stub
-		String strResponse = response.parseAsString();
-		
-		Log.d(LOG_PREFIX, "Response code " + response.getStatusCode() + " " + response.getStatusMessage() + " response: "+strResponse);
-	}
-
-
-	static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-	static final JsonFactory JSON_FACTORY = new JacksonFactory();
-	/**
-	 * Called when the device has been unregistered.
-	 * 
-	 * @param context
-	 *            the Context
-	 */
-	@Override
-	protected void onUnregistered(Context context, String registrationId) {
-	}
-
-	public static class NWCloudBackendURL extends GenericUrl {
-
-		public NWCloudBackendURL(String encodedUrl) {
-			super(encodedUrl);
-		}
-
-		@Key
-		public String fields;
-	}
-
-	public static class AndroidDevice {
-
-		@Key
-		private String registrationKey;
-		private String email;
-
-		public String getRegistrationKey() {
-			return registrationKey;
-		}
-
-		public void setRegistrationKey(String registrationKey) {
-			this.registrationKey = registrationKey;
-		}
-
-		public String getEmail() {
-			return email;
-		}
-
-		public void setEmail(String email) {
-			this.email = email;
-		}
-	}
 
 }
