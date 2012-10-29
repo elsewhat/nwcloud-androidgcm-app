@@ -3,6 +3,7 @@ package org.sapmentors.nwcloud.gcm;
 import java.io.IOException;
 
 import org.sapmentors.nwcloud.gcm.backend.NWCloudBackend;
+import org.sapmentors.nwcloud.gcm.util.AndroidUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -123,10 +124,14 @@ public class GCMIntentService extends GCMBaseIntentService {
 	 */
 	@Override
 	public void onRegistered(Context context, String registrationKey) {
-		Log.i(LOG_PREFIX, "onRegistered");
+		Log.d(LOG_PREFIX, "onRegistered");
 		// TODO
+		
+		//Get the account registered to this device
+		String email = AndroidUtils.getPrimaryAccountEmail(context);
+		Log.d(LOG_PREFIX, "Primary account for this devices is "+ email);
 		// Persist registration key in nwcloud backend
-		NWCloudBackend.persistDevice("dagfinn.parnas@gmail.com", registrationKey);
+		NWCloudBackend.persistDevice(email, registrationKey);
 	}
 
 	

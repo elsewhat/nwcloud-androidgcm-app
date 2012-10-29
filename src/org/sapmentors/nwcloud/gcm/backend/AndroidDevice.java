@@ -11,7 +11,7 @@ public class AndroidDevice {
 	
 	
 
-	public AndroidDevice(String registrationKey, String email) {
+	public AndroidDevice(String email, String registrationKey) {
 		this.registrationKey = registrationKey;
 		this.email = email;
 	}

@@ -3,7 +3,6 @@ package org.sapmentors.nwcloud.gcm.backend;
 import java.io.IOException;
 import java.util.List;
 
-
 import android.util.Log;
 
 import com.google.api.client.http.GenericUrl;
@@ -17,7 +16,6 @@ import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.GenericData;
 import com.google.api.client.util.Key;
 
 /**
@@ -37,6 +35,12 @@ public class NWCloudBackend {
 	protected static final JsonFactory JSON_FACTORY = new JacksonFactory();
 	
 	
+	/**
+	 * Persist the device in the cloud backend
+	 * 
+	 * @param email
+	 * @param registrationKey
+	 */
 	public static void persistDevice(String email, String registrationKey) {
 		HttpRequestFactory requestFactory =
 		        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
@@ -49,7 +53,7 @@ public class NWCloudBackend {
 		GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/androiddevice/");
 		
 		//The data (to be converted to JSON)
-		AndroidDevice androidDevice = new AndroidDevice(registrationKey,email);
+		AndroidDevice androidDevice = new AndroidDevice(email, registrationKey);
 		
 		JsonHttpContent jsonContent = new JsonHttpContent(JSON_FACTORY, androidDevice);
 	    
@@ -63,7 +67,7 @@ public class NWCloudBackend {
 	    
 	}
 	
-	public static List<AndroidDevice> getRegisteredDevices() {
+	public static AndroidDevice[] getRegisteredDevices() {
 		HttpRequestFactory requestFactory =
 		        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
 		            @Override
@@ -78,8 +82,8 @@ public class NWCloudBackend {
 		try {
 			request = requestFactory.buildGetRequest(url);
 			HttpResponse response = request.execute();
-			AndroidDeviceList androidDeviceList = response.parseAs(AndroidDeviceList.class);
-			return androidDeviceList.getDevices();
+			AndroidDevice[] androidDevices = response.parseAs(AndroidDevice[].class);
+			return androidDevices;
 		} catch (IOException e) {
 			Log.e(LOG_PREFIX, "Failed to post JSON ", e);
 		}
