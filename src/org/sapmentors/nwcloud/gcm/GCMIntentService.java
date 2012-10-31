@@ -1,7 +1,5 @@
 package org.sapmentors.nwcloud.gcm;
 
-import java.io.IOException;
-
 import org.sapmentors.nwcloud.gcm.backend.NWCloudBackend;
 import org.sapmentors.nwcloud.gcm.util.AndroidUtils;
 
@@ -14,19 +12,6 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.http.json.JsonHttpContent;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.GenericData;
-import com.google.api.client.util.Key;
 
 
 /**
@@ -39,6 +24,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	private static final String LOG_PREFIX = "NWCLOUD-GCM";
 	// Project_id is part of Google API Console URL of the project
 	private static final String PROJECT_ID = "170560228105";
+	private int notificationCounter = 1;
 
 	/**
 	 * Register the device for GCM.
@@ -85,10 +71,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.i(LOG_PREFIX, "createNotification with message " + message);
 
 		int icon = android.R.drawable.ic_input_get; // icon from resources
-		CharSequence tickerText = "Family sync quote"; // ticker-text
+		CharSequence tickerText = "New message delivered by #SAPNWCloud"; // ticker-text
 		long when = System.currentTimeMillis(); // notification time
 		Context context = getApplicationContext(); // application Context
-		CharSequence contentTitle = "Stuff Kids Say"; // message title
+		CharSequence contentTitle = "#SAPNWCloud GCM Message"; // message title
 		CharSequence contentText = message; // message text
 
 		Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -102,7 +88,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 				contentIntent);
 
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.notify(1, notification);
+		notificationManager.notify(notificationCounter++, notification);
 	}
 
 	

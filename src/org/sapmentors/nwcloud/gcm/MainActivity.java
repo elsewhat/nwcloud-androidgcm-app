@@ -2,11 +2,13 @@ package org.sapmentors.nwcloud.gcm;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sapmentors.nwcloud.gcm.backend.AndroidDevice;
 import org.sapmentors.nwcloud.gcm.backend.NWCloudBackend;
+import org.sapmentors.nwcloud.gcm.backend.PushMessageExternal;
+import org.sapmentors.nwcloud.gcm.model.PushMessageResponse;
+import org.sapmentors.nwcloud.gcm.util.AndroidUtils;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -16,14 +18,28 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+/**
+ * Main activity for the android app
+ * 
+ * On startup it registers the device for receiving GCM push messages
+ * It also fetches all the devices from the NW cloud backend and provides
+ * and interface for sending the users a message.
+ * 
+ * The message sent is sent to NW Cloud through a REST interface, which again
+ * uses the GCM server library to send it via Google to the android device.
+ * @author dagfinn.parnas
+ *
+ */
 public class MainActivity extends Activity {
 	protected static final String LOG_PREFIX = "NWCLOUD-GCM";
 
 	Spinner spinnerEmailTo; 
 	Button buttonSend;
+	EditText editMessage; 
 	ArrayAdapter<String> spinnerAdapter;
 	
 	
@@ -31,31 +47,39 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        //Register this device to Google Cloud Messaging for our API
+        //Will also subsequently trigger storage of GCM registration key
+        //for this devices in the NWCloud backend
         GCMIntentService.register(this);
+        
         setContentView(R.layout.activity_main);
         
+        //components in the view
         spinnerEmailTo = (Spinner)findViewById(R.id.spinner_emailto);
         buttonSend = (Button)findViewById(R.id.button_send);
+        editMessage=(EditText)findViewById(R.id.edit_message);
         
         List<String> list = new ArrayList<String>();
-    	list.add("Please wait... fetching");
+    	list.add("Please wait... fetching recipients");
         
     	spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,list);
-        
     	spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //spinnerAdapter.add("Please wait... fetching");
         spinnerEmailTo.setAdapter(spinnerAdapter);
         
+        //disable the send button untill the recipient devices have been fetched
         buttonSend.setEnabled(false);
         
-       // NWCloudBackendTask taskGetDevices = new NWCloudBackendTask();
-        //taskGetDevices.execute();
-    
-        
-        setContentView(R.layout.activity_main);
+        NWCloudGetDevicesTask taskGetDevices = new NWCloudGetDevicesTask();
+        taskGetDevices.execute();
     }
     
-    public void setupSpinner(AndroidDevice[] devices){
+    /**
+     * Populate the spinner with emails from registered
+     * android devices (from NWCloud backend)
+     * 
+     * @param devices
+     */
+    private void setupSpinner(AndroidDevice[] devices){
     	spinnerAdapter.clear();
     	if(devices!=null){
         	spinnerAdapter.clear();
@@ -79,7 +103,21 @@ public class MainActivity extends Activity {
     }
     
     public void actionSendMessage(View view){
-    	informUserAboutMessage("Send message");
+    	informUserAboutMessage("Attempting to send message");
+    	
+    	PushMessageExternal pushMessageExternal = new PushMessageExternal();
+    	
+    	pushMessageExternal.setMessage(editMessage.getText().toString());
+    	pushMessageExternal.setEmailFrom(AndroidUtils.getPrimaryAccountEmail(this));
+    	
+    	ArrayList<String> arEmailTo = new ArrayList<String>(10);
+    	String strSelectedEmailTo = (String)spinnerEmailTo.getSelectedItem();
+    	arEmailTo.add(strSelectedEmailTo);
+    	
+    	pushMessageExternal.setEmailTo(arEmailTo.toArray(new String[]{}));	
+    	
+    	NWCloudSendMessageTask taskSendMessage = new NWCloudSendMessageTask();
+    	taskSendMessage.execute(pushMessageExternal);
     }
     
     
@@ -88,10 +126,9 @@ public class MainActivity extends Activity {
 		
 	}
 	
-	public class NWCloudBackendTask extends AsyncTask<Object, Object, AndroidDevice[]> {
+	public class NWCloudGetDevicesTask extends AsyncTask<Object, Object, AndroidDevice[]> {
 		
-		public NWCloudBackendTask (){
-
+		public NWCloudGetDevicesTask (){
 		}
 		
 		@Override
@@ -106,8 +143,24 @@ public class MainActivity extends Activity {
 			super.onPostExecute(result);
 			setupSpinner(result);
 		}
+	}
+	
+	public class NWCloudSendMessageTask extends AsyncTask<PushMessageExternal, Object, PushMessageResponse> {
 		
+		public NWCloudSendMessageTask (){
+		}
 		
-		
+		@Override
+		protected PushMessageResponse doInBackground(PushMessageExternal... arguments){
+			PushMessageExternal pushMessage= arguments[0];
+			Log.d(LOG_PREFIX, "About to send message to NWCloud backend. Msg;" + pushMessage.getMessage());
+			PushMessageResponse pushmessageResponse = NWCloudBackend.sendMessage(pushMessage);
+			return pushmessageResponse;
+		}
+
+		@Override
+		protected void onPostExecute(PushMessageResponse pushmessageResponse) {
+			informUserAboutMessage("Push message sent. Response code is " +pushmessageResponse.getResponseCode() +" ("+pushmessageResponse.getResponseMessage()+")");
+		}
 	}
 }

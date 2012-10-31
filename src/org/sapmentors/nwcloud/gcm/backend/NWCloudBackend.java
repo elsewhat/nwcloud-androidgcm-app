@@ -3,6 +3,8 @@ package org.sapmentors.nwcloud.gcm.backend;
 import java.io.IOException;
 import java.util.List;
 
+import org.sapmentors.nwcloud.gcm.model.PushMessageResponse;
+
 import android.util.Log;
 
 import com.google.api.client.http.GenericUrl;
@@ -60,13 +62,20 @@ public class NWCloudBackend {
 		HttpRequest request;
 		try {
 			request = requestFactory.buildPostRequest(url, jsonContent);
-			parseResponse(request.execute());
+			HttpResponse response  = request.execute();
+			String strResponse = response.parseAsString();
+			Log.d(LOG_PREFIX, "Response code " + response.getStatusCode() + " " + response.getStatusMessage() + " response: "+strResponse);
 		} catch (IOException e) {
 			Log.e(LOG_PREFIX, "Failed to post JSON ", e);
 		}
 	    
 	}
 	
+	/**
+	 * Get all registered devices from the NWCloud backend
+	 * 
+	 * @return
+	 */
 	public static AndroidDevice[] getRegisteredDevices() {
 		HttpRequestFactory requestFactory =
 		        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
@@ -90,14 +99,45 @@ public class NWCloudBackend {
 		return null;
 	    
 	}
+	
+	/**
+	 * Send a push message to the REST based interface
+	 * 
+	 * @param pushMessage
+	 * @return
+	 */
+	public static PushMessageResponse sendMessage(PushMessageExternal pushMessage){
+		PushMessageResponse pushMessageResponse=null;;
+		HttpRequestFactory requestFactory =
+		        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
+		            @Override
+		          public void initialize(HttpRequest request) {
+		            request.setParser(new JsonObjectParser(JSON_FACTORY));
+		          }
+		        });
+		//the endpoint of the REST service
+		GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/messaging/");
 
-
-	private static void parseResponse(HttpResponse response) throws IOException{
-		// TODO Auto-generated method stub
-		String strResponse = response.parseAsString();
 		
-		Log.d(LOG_PREFIX, "Response code " + response.getStatusCode() + " " + response.getStatusMessage() + " response: "+strResponse);
+		JsonHttpContent jsonContent = new JsonHttpContent(JSON_FACTORY, pushMessage);
+	    
+		HttpRequest request;
+		try {
+			request = requestFactory.buildPostRequest(url, jsonContent);
+			HttpResponse response  = request.execute();
+			pushMessageResponse = response.parseAs(PushMessageResponse.class);
+			pushMessageResponse.setResponseCode(response.getStatusCode());
+			pushMessageResponse.setResponseMessage(response.getStatusMessage());
+			
+			Log.d(LOG_PREFIX, "Response code " + response.getStatusCode() + " " + response.getStatusMessage() + " response: "+pushMessageResponse);
+		} catch (IOException e) {
+			Log.e(LOG_PREFIX, "Failed to post JSON ", e);
+		}
+		
+		return pushMessageResponse;
 	}
+
+
 
 
 	/** Feed of Google+ activities. */
