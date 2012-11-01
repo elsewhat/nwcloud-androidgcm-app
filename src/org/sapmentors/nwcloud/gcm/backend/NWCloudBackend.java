@@ -1,10 +1,13 @@
 package org.sapmentors.nwcloud.gcm.backend;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import org.sapmentors.nwcloud.gcm.model.PushMessageResponse;
+import org.sapmentors.nwcloud.gcm.util.AndroidUtils;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.api.client.http.GenericUrl;
@@ -32,7 +35,13 @@ import com.google.api.client.util.Key;
  */
 public class NWCloudBackend {
 	protected static final String LOG_PREFIX = "NWCLOUD-GCM";
-	protected static final String BASE_BACKEND_URL = "http://192.168.1.6:8080/nwcloud-androidgcm-backend/";
+	protected static final String NWCLOUD_BACKEND_URL="https://androidgcmbackendp013234trial.nwtrial.ondemand.com/nwcloud-androidgcm-backend/";
+	protected static final String LOCAL_BACKEND_URL = "http://192.168.1.6:8080/nwcloud-androidgcm-backend/";
+	
+	//Use this to switch which backend you want to use
+	protected static final String BASE_BACKEND_URL= NWCLOUD_BACKEND_URL;
+	
+	
 	protected static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 	protected static final JsonFactory JSON_FACTORY = new JacksonFactory();
 	
@@ -94,7 +103,7 @@ public class NWCloudBackend {
 			AndroidDevice[] androidDevices = response.parseAs(AndroidDevice[].class);
 			return androidDevices;
 		} catch (IOException e) {
-			Log.e(LOG_PREFIX, "Failed to post JSON ", e);
+			Log.e(LOG_PREFIX, "Failed to parse JSON ", e);
 		}
 		return null;
 	    
@@ -139,6 +148,49 @@ public class NWCloudBackend {
 
 
 
+	/**
+	 * Remove this device from the NWCloud
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static boolean removeMyDevice(Context context) {
+		try {
+			String email = AndroidUtils.getPrimaryAccountEmail(context);
+			email = URLEncoder.encode(email,"UTF-8");
+			
+			
+			HttpRequestFactory requestFactory =
+	        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
+	            @Override
+	          public void initialize(HttpRequest request) {
+	            request.setParser(new JsonObjectParser(JSON_FACTORY));
+	          }
+	        });
+			//the endpoint of the REST service
+			GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/androiddevice/"+email);
+					
+			Log.i(LOG_PREFIX, "Attempting to delete device through URL " + url);
+			
+			HttpRequest request;
+			
+			request = requestFactory.buildDeleteRequest(url);
+			HttpResponse response = request.execute();
+			int responseCode = response.getStatusCode();
+			Log.i(LOG_PREFIX, "Response to HTTP Delete " + responseCode+ " "+response.getStatusMessage());
+			if(responseCode ==200){
+				return true;
+			}else {
+				return false;
+			}
+		} catch (IOException e) {
+			Log.e(LOG_PREFIX, "Error while sending HTTP DELETE request", e);
+		}
+				
+		return false;
+	}
+
+	
 
 	/** Feed of Google+ activities. */
 	  public static class AndroidDeviceList {
@@ -151,6 +203,9 @@ public class NWCloudBackend {
 	      return devices;
 	    }
 	  }
+
+
+
 
 
 	

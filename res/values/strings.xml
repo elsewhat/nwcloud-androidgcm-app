@@ -2,7 +2,8 @@
 
     <string name="app_name">SAPNWCloud Push Messaging</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    <string name="menu_refresh_recipient">Refresh recipients</string>
+    <string name="menu_delete_device">Delete my device data</string>
     <string name="title_activity_main">MainActivity</string>
 
 </resources>

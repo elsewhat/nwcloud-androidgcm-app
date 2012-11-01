@@ -1,6 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
+    <item android:id="@+id/menu_refresh_recipient"
+        android:title="@string/menu_refresh_recipient"
         android:orderInCategory="100"
+        android:showAsAction="never" />
+   
+    <item android:id="@+id/menu_delete_device"
+        android:title="@string/menu_delete_device"
+        android:orderInCategory="110"
         android:showAsAction="never" />
 </menu>
