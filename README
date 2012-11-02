@@ -1,4 +1,7 @@
 Reference Android implementation that uses the #SAPNWCloud backend for Mobile push message https://github.com/elsewhat/nwcloud-androidgcm-backend
+For introduction to project, please see
+http://scn.sap.com/community/developer-center/cloud-platform/blog/2012/11/02/mobile-push-messages-with-sapnwcloud--fork-away
+
 
 It will register the device for Google Cloud Messaging for my personal Google API project on startup. 
 Afterwards, you will be able to send mobile push messages to other mobile devices that have run this app.
