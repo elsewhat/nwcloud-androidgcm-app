@@ -61,10 +61,10 @@ public class NWCloudBackend {
 		          }
 		        });
 		//the endpoint of the REST service
-		GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/androiddevice/");
+		GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/mobiledevice/");
 		
 		//The data (to be converted to JSON)
-		AndroidDevice androidDevice = new AndroidDevice(email, registrationKey);
+		MobileDevice androidDevice = new MobileDevice(email, registrationKey, MobileDevice.ANDROID_MOBILE_PLATFORM);
 		
 		JsonHttpContent jsonContent = new JsonHttpContent(JSON_FACTORY, androidDevice);
 	    
@@ -85,7 +85,7 @@ public class NWCloudBackend {
 	 * 
 	 * @return
 	 */
-	public static AndroidDevice[] getRegisteredDevices() {
+	public static MobileDevice[] getRegisteredDevices() {
 		HttpRequestFactory requestFactory =
 		        HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
 		            @Override
@@ -94,13 +94,13 @@ public class NWCloudBackend {
 		          }
 		        });
 		//the endpoint of the REST service
-		GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/androiddevice/");
+		GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/mobiledevice/");
 
 		HttpRequest request;
 		try {
 			request = requestFactory.buildGetRequest(url);
 			HttpResponse response = request.execute();
-			AndroidDevice[] androidDevices = response.parseAs(AndroidDevice[].class);
+			MobileDevice[] androidDevices = response.parseAs(MobileDevice[].class);
 			return androidDevices;
 		} catch (IOException e) {
 			Log.e(LOG_PREFIX, "Failed to parse JSON ", e);
@@ -168,7 +168,7 @@ public class NWCloudBackend {
 	          }
 	        });
 			//the endpoint of the REST service
-			GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/androiddevice/"+email);
+			GenericUrl url = new GenericUrl(BASE_BACKEND_URL +"api/mobiledevice/"+email);
 					
 			Log.i(LOG_PREFIX, "Attempting to delete device through URL " + url);
 			
@@ -197,9 +197,9 @@ public class NWCloudBackend {
 
 	    /** List of Google+ activities. */
 	    @Key()
-	    private List<AndroidDevice> devices;
+	    private List<MobileDevice> devices;
 
-	    public List<AndroidDevice> getDevices() {
+	    public List<MobileDevice> getDevices() {
 	      return devices;
 	    }
 	  }

@@ -4,7 +4,7 @@ package org.sapmentors.nwcloud.gcm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sapmentors.nwcloud.gcm.backend.AndroidDevice;
+import org.sapmentors.nwcloud.gcm.backend.MobileDevice;
 import org.sapmentors.nwcloud.gcm.backend.NWCloudBackend;
 import org.sapmentors.nwcloud.gcm.backend.PushMessageExternal;
 import org.sapmentors.nwcloud.gcm.model.PushMessageResponse;
@@ -103,12 +103,12 @@ public class MainActivity extends Activity {
      * 
      * @param devices
      */
-    private void populateSpinner(AndroidDevice[] devices){
+    private void populateSpinner(MobileDevice[] devices){
     	spinnerAdapter.clear();
     	if(devices!=null){
         	spinnerAdapter.clear();
         	for (int i = 0; i < devices.length; i++) {
-				AndroidDevice device =devices[i];
+				MobileDevice device =devices[i];
 				spinnerAdapter.add(device.getEmail());		
 			}
         	buttonSend.setEnabled(true);
@@ -169,20 +169,20 @@ public class MainActivity extends Activity {
 		
 	}
 	
-	public class NWCloudGetDevicesTask extends AsyncTask<Object, Object, AndroidDevice[]> {
+	public class NWCloudGetDevicesTask extends AsyncTask<Object, Object, MobileDevice[]> {
 		
 		public NWCloudGetDevicesTask (){
 		}
 		
 		@Override
-		protected AndroidDevice[] doInBackground(Object... arg0){
+		protected MobileDevice[] doInBackground(Object... arg0){
 			Log.d(LOG_PREFIX, "Before getting android devices from backend");
-			AndroidDevice[] devices = NWCloudBackend.getRegisteredDevices();
+			MobileDevice[] devices = NWCloudBackend.getRegisteredDevices();
 			return devices;
 		}
 
 		@Override
-		protected void onPostExecute(AndroidDevice[] result) {
+		protected void onPostExecute(MobileDevice[] result) {
 			super.onPostExecute(result);
 			populateSpinner(result);
 		}

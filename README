@@ -1,5 +1,11 @@
-TODO
+Reference Android implementation that uses the #SAPNWCloud backend for Mobile push message https://github.com/elsewhat/nwcloud-androidgcm-backend
 
-Status:
-Currently post the android device information to backend (expects backedn to be at local internal ip 192.168.1.6)
-Lots of remaining tasks
+It will register the device for Google Cloud Messaging for my personal Google API project on startup. 
+Afterwards, you will be able to send mobile push messages to other mobile devices that have run this app.
+
+Update PROJECT_ID in https://github.com/elsewhat/nwcloud-androidgcm-app/blob/master/src/org/sapmentors/nwcloud/gcm/GCMIntentService.java to your own Google API project.
+
+Uses backend https://androidgcmbackendp013234trial.nwtrial.ondemand.com/nwcloud-androidgcm-backend/
+(modify in https://github.com/elsewhat/nwcloud-androidgcm-app/blob/master/src/org/sapmentors/nwcloud/gcm/backend/NWCloudBackend.java)
+
+Currently requires Android 4.0  (though can be downported easily)
