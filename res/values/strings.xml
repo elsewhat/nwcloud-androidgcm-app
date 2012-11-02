@@ -5,5 +5,6 @@
     <string name="menu_refresh_recipient">Refresh recipients</string>
     <string name="menu_delete_device">Delete my device data</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="footer_text">Unofficial app brought to you by the</string>
 
 </resources>

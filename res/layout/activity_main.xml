@@ -4,14 +4,41 @@
     android:layout_height="match_parent"
      >
 
+        <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/footer_height"
+        android:orientation="horizontal"
+        android:background="#eee"
+
+>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+	        <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:textSize="@dimen/text_size_small"
+	            android:text="@string/footer_text"/>
+	
+	        <ImageView android:id="@+id/footer_logo"
+	        	android:clickable="true"
+	        	android:layout_width="wrap_content"
+	            android:layout_height="fill_parent"
+	            android:src="@drawable/logo_sapmentors" />
+        </LinearLayout>            
+    </LinearLayout>
+    
     <Spinner
         android:id="@+id/spinner_emailto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
         android:layout_marginLeft="19dp"
-        android:layout_marginTop="21dp" />
+        android:layout_marginTop="21dp"
+        android:layout_below="@+id/footer" />
 
     <EditText
         android:id="@+id/edit_message"
@@ -37,3 +64,5 @@
         android:onClick="actionSendMessage"/>
 
 </RelativeLayout>
+<!-- FOOTER -->
+
